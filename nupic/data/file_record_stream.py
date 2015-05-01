@@ -23,9 +23,10 @@
 CSV file based implementation of a record stream
 
 FileRecordStream is class that can read and write .csv files that contain
-records. The file has 3 header lines that contain for each field the name, type
-and a special indicator for the fields that serve as the reset field,
-sequence id field and timestamp field. The other fields
+records. The file has 3 header lines that contain, for each field, the name
+(line 1), type (line 2), and a special indicator (line 3). The special indicator
+can indicate that the field specifies a reset, is a sequence ID, or is a
+timestamp for the record.
 
 The header lines look like:
 
@@ -38,7 +39,6 @@ second header line. The supported types are: int, float, string, bool, datetime
 
 The format for datetime fields is yyyy-mm-dd hh:mm:ss.us
 The 'us' component is microseconds.
-
 
 When reading a file the FileRecordStream will automatically read the header line
 and will figure out the type of each field and what are the timestamp, reset
@@ -77,7 +77,9 @@ from nupic.data.utils import (
                         serializeTimestamp,
                         serializeTimestampNoMS,
                         escape,
-                        unescape)
+                        unescape,
+                        parseSdr,
+                        serializeSdr)
 
 
 
@@ -193,7 +195,7 @@ class FileRecordStream(RecordStreamIface):
                       (streamID, len(names), len(types), len(specials)))
 
     # Verify standard file format
-    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool')
+    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr')
     for i, t in enumerate(types):
       # This is a temporary hack for the Precog milestone, which passes in a
       # type 'address' for address fields. Here we simply map the type "address"
@@ -245,7 +247,8 @@ class FileRecordStream(RecordStreamIface):
                float=floatOrNone,
                bool=parseBool,
                string=unescape,
-               datetime=parseTimestamp)
+               datetime=parseTimestamp,
+               sdr=parseSdr)
     else:
       if includeMS:
         datetimeFunc = serializeTimestamp
@@ -255,7 +258,8 @@ class FileRecordStream(RecordStreamIface):
                float=str,
                string=escape,
                bool=str,
-               datetime=datetimeFunc)
+               datetime=datetimeFunc,
+               sdr=serializeSdr)
 
     self._adapters = [m[t] for t in types]
 

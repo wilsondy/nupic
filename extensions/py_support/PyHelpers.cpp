@@ -23,8 +23,8 @@
 
 #include "PyHelpers.hpp"
 
-// Nested namespace nta::py
-namespace nta { namespace py
+// Nested namespace nupic::py
+namespace nupic { namespace py
 {
   static bool runningUnderPython = false;
   
@@ -128,7 +128,7 @@ namespace nta { namespace py
     }
 
     // Throw a correponding C++ exception
-    throw nta::Exception(__FILE__, lineno, exception, traceback);
+    throw nupic::Exception(__FILE__, lineno, exception, traceback);
   }
 
   // ---
@@ -245,7 +245,6 @@ namespace nta { namespace py
 
   PyObject * String::createString_(const char * s, size_t size)
   {
-    NTA_CHECK(size >= 0) << "String length must not be negative";
     if (size == 0)
     {
       NTA_CHECK(s) << "The input string must not be NULL when size == 0";
@@ -763,7 +762,7 @@ namespace nta { namespace py
 
 
 
-} } // end of nta::py namespace
+} } // end of nupic::py namespace
 
 
 

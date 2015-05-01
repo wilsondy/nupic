@@ -19,8 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import random
-
 import numpy
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder
@@ -48,6 +46,7 @@ class PassThroughEncoder(Encoder):
     self.verbosity = verbosity
     self.description = [(name, 0)]
     self.name = name
+    self.encoders = None
     self.forced = forced
 
   ############################################################################
@@ -88,7 +87,7 @@ class PassThroughEncoder(Encoder):
     output[:] = input[:]
 
     if self.verbosity >= 2:
-      print "input:", input, "index:", index, "output:", output
+      print "input:", input, "output:", output
       print "decoded:", self.decodedToStr(self.decode(output))
 
 
@@ -144,3 +143,25 @@ class PassThroughEncoder(Encoder):
     r = r * ratio
 
     return numpy.array([r])
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.n = proto.n
+    encoder.w = proto.w if proto.w else None
+    encoder.verbosity = proto.verbosity
+    encoder.name = proto.name
+    encoder.description = [(encoder.name, 0)]
+    encoder.encoders = None
+    encoder.forced = proto.forced
+    return encoder
+
+
+  def write(self, proto):
+    proto.n = self.n
+    if self.w is not None:
+      proto.w = self.w
+    proto.verbosity = self.verbosity
+    proto.name = self.name
+    proto.forced = self.forced

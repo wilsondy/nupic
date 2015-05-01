@@ -60,9 +60,11 @@ updateAnomalyLikelihoods. The details of these are described below.
 """
 
 import math
+import datetime
 
 import numpy
 
+from nupic.utils import MovingAverage
 
 
 class AnomalyLikelihood(object):
@@ -390,7 +392,7 @@ def updateAnomalyLikelihoods(anomalyScores,
   likelihoods = numpy.zeros(len(anomalyScores), dtype=float)
   for i, v in enumerate(anomalyScores):
     newAverage, historicalValues, total = (
-      _movingAverage(historicalValues, total, v[2], windowSize)
+      MovingAverage.compute(historicalValues, total, v[2], windowSize)
     )
     aggRecordList[i] = newAverage
     likelihoods[i]   = normalProbability(newAverage, params["distribution"])
@@ -425,7 +427,7 @@ def updateAnomalyLikelihoods(anomalyScores,
 
 
 def _filterLikelihoods(likelihoods,
-                       redThreshold=0.9999, yellowThreshold=0.999):
+                       redThreshold=0.99999, yellowThreshold=0.999):
   """
   Filter the list of raw (pre-filtered) likelihoods so that we only preserve
   sharp increases in likelihood. 'likelihoods' can be a numpy array of floats or
@@ -435,47 +437,26 @@ def _filterLikelihoods(likelihoods,
   """
   redThreshold    = 1.0 - redThreshold
   yellowThreshold = 1.0 - yellowThreshold
-
+  
   # The first value is untouched
   filteredLikelihoods = [likelihoods[0]]
 
   for i, v in enumerate(likelihoods[1:]):
 
-    # If we are below threshold
     if v <= redThreshold:
+      # Value is in the redzone
 
-      # If previous value is above threshold
       if likelihoods[i] > redThreshold:
+        # Previous value is not in redzone, so leave as-is
         filteredLikelihoods.append(v)
-      # else set to a lower value
       else:
         filteredLikelihoods.append(yellowThreshold)
 
-    # If we're not above threshold, just stay as-is
     else:
+      # Value is below the redzone, so leave as-is
       filteredLikelihoods.append(v)
 
   return filteredLikelihoods
-
-
-def _movingAverage(historicalValues, total, newVal, windowSize):
-  """
-  Helper routine for computing a moving average. Given a list of historical
-  numbers, a running total of those values, and a new number compute the new
-  windowed average.
-
-  :returns: an updated windowed average, the new list of ``historicalValues``,
-      and the new running total. Ensures the list of ``historicalValues`` is at
-      most ``windowSize``.
-  """
-  while len(historicalValues) >= windowSize:
-    total -= historicalValues[0]
-    historicalValues.pop(0)
-  historicalValues.append(newVal)
-  total += newVal
-  newAverage = float(total) / len(historicalValues)
-
-  return newAverage, historicalValues, total
 
 
 def _anomalyScoreMovingAverage(anomalyScores,
@@ -499,13 +480,13 @@ def _anomalyScoreMovingAverage(anomalyScores,
   for record in anomalyScores:
 
     # Skip (but log) records without correct number of entries
-    if len(record) != 3:
+    if not isinstance(record, (list, tuple)) or len(record) != 3:
       if verbosity >= 1:
         print "Malformed record:", record
       continue
 
     avg, historicalValues, total = (
-      _movingAverage(historicalValues, total, record[2], windowSize)
+      MovingAverage.compute(historicalValues, total, record[2], windowSize)
       )
 
     averagedRecordList.append( [record[0], record[1], avg] )

@@ -12,6 +12,9 @@ test.out
 *.swp
 *.coverage*
 
+# build
+build/
+
 # personalized nupic configuration file
 .nupic_config
 
@@ -22,8 +25,8 @@ nbproject/
 *.pydevproject
 .idea
 
-# swarming output files
-data/
+# Wheels
+wheelhouse/
 
 # output from integration tests
 inference/
@@ -57,17 +60,16 @@ conf/default/nupic-site.xml
 
 # nupic.core repo is located under $NUPIC/extensions/core/
 extensions/core/
+experimental/
 
 # nupic bindings swig libraries
-nupic/bindings/*engine_internal.*
-nupic/bindings/*algorithms.*
-nupic/bindings/*iorange.*
-nupic/bindings/*math.*
 nupic/bindings/*.cxx
+nupic/bindings/*.py
+nupic/bindings/*.so
+nupic/bindings/proto/*.capnp
 
 # Pip stuff
 dist/
 nupic.egg-info/
 nupic/*cpp_region.*
 temp/
-

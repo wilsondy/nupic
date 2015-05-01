@@ -236,7 +236,6 @@ config = {
   'spVerbosity' : 0,
 
   # Print/logs stats every N iterations; 0 = disable stats
-  # NOTE: stats are printed by FDRCSpatial2.printPeriodicStats() to stdout
   'spPrintStatsPeriodIter' : 0,
 
   # SP inhibition control (absolute value);
@@ -245,10 +244,10 @@ config = {
   #
   'spNumActivePerInhArea' : 40,
 
-  # coincInputPoolPct
+  # potentialPct
   # What percent of the columns's receptive field is available
   # for potential synapses. At initialization time, we will 
-  # choose coincInputPoolPct * (2*coincInputRadius+1)^2 
+  # choose potentialPct * (2*potentialRadius+1)^2 
   'spCoincInputPoolPct' : 1.0,
   
 
@@ -258,7 +257,7 @@ config = {
 
   # TP diagnostic output verbosity control;
   # 0: silent; [1..6]: increasing levels of verbosity
-  # (see verbosity in nta/trunk/py/nupic/research/TP.py and TP10X*.py)
+  # (see verbosity in nupic/trunk/py/nupic/research/TP.py and TP10X*.py)
   #
   'tpVerbosity' : 0,
 
@@ -337,7 +336,7 @@ config = {
   #
   'tpNewSynapseCount' : 15,
 
-)
+}
 # end of config dictionary
 
 
